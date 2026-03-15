@@ -100,12 +100,12 @@ class Galaxy:
             
             # --- SAMAN YOLU RENK PALETİ ---
             if dist_factor < 0.22:
-                col = lerp(color.rgba(255, 230, 180, 255), color.white, random.uniform(0.3, 0.7))
+                col = lerp(color.rgba(255, 150, 90, 255), color.white, random.uniform(0.3, 0.7))
             elif dist_factor < 0.55:
                 dusty_brown = color.rgba(210, 180, 140, 255)
                 col = lerp(dusty_brown, color.white, random.uniform(0.4, 0.9))
             else:
-                cold_white = color.rgba(230, 245, 255, 255)
+                cold_white = color.rgba(230, 100, 90, 255)
                 col = lerp(cold_white, color.white, random.uniform(0.6, 1))
             stars_colors.append(col)
 
