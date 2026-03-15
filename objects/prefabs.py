@@ -46,14 +46,13 @@ class StarSystem:
 
 class Galaxy:
     def __init__(self, position, rotation, num_stars=5000, color_theme=color.cyan):
-        # Galaksinin ana pivotu artık rastgele bir rotasyona (rotation) sahip
         self.pivot = Entity(position=position, rotation=rotation)
         self.radius = 5000 
         
         # 1. Olay Ufku
         self.blackhole = Entity(parent=self.pivot, model='sphere', color=color.black, scale=250, collider=None)
         
-        # --- OPTİMİZE EDİLMİŞ AKKRESYON DİSKİ (Aynen korundu) ---
+        # --- STİLİZE VE EĞİK KARADELİK ---
         all_vertices = []
         all_colors = []
         for i in range(25):
@@ -70,9 +69,11 @@ class Galaxy:
         self.disk_mesh = Entity(
             parent=self.pivot,
             model=Mesh(vertices=all_vertices, colors=all_colors, mode='line', thickness=8),
+            rotation_x=20, # Eğim 25'ten 20'ye düşürüldü
+            rotation_z=5   # Yan yatma açısı daha dengeli olması için 5'e çekildi
         )
 
-        # --- 3 BOYUTLU VE HACİMLİ SARMAL GALAKSİ ---
+        # --- DETAYLI SARMAL GALAKSİ (Çekim Etkili) ---
         stars_pos = []
         stars_colors = []
         num_arms = 4
@@ -82,30 +83,33 @@ class Galaxy:
             arm = (i % num_arms) * (math.tau / num_arms)
             if random.random() > 0.8: arm += random.uniform(0, math.tau)
             
-            r = random.uniform(0, 1)**0.8 * self.radius + 600
-            twist = 3.2
-            theta = arm + math.log(r / 500) * twist + random.gauss(0, arm_spread)
+            # Üssü artırarak (1.3) yıldızları merkeze doğru yığdık, başlangıcı 350'ye çektik
+            r = random.uniform(0, 1)**1.3 * self.radius + 350
             
-            # --- 3B BOYUTLANDIRMA ---
-            # Galaktik şişkinlik (merkezde dikey yayılım fazla, dışa doğru azalır)
-            # Merkezde r=600 civarında y yayılımı ~400 iken, dışarıda r=5000'de ~50 olur.
+            # Merkeze yaklaştıkça kollar daha dar ve düzenli hale gelir (akış hissi)
             dist_factor = r / self.radius
-            vertical_spread = (1.0 - dist_factor) * 500 + 50 # Merkezde çok daha kalın
+            dynamic_spread = arm_spread * (dist_factor + 0.1)
+            
+            twist = 3.2
+            theta = arm + math.log(r / 400) * twist + random.gauss(0, dynamic_spread)
+            
+            # Galaktik şişkinlik (merkezde dikey yayılım fazla)
+            vertical_spread = (1.0 - dist_factor) * 500 + 40
             
             x = r * math.cos(theta)
-            y = random.gauss(0, vertical_spread * 0.4) # Hacimli dikey dağılım
+            y = random.gauss(0, vertical_spread * 0.4) 
             z = r * math.sin(theta)
             
             stars_pos.append(Vec3(x, y, z))
             
             # --- SAMAN YOLU RENK PALETİ ---
             if dist_factor < 0.22:
-                col = lerp(color.rgba(255, 150, 90, 255), color.white, random.uniform(0.3, 0.7))
+                col = lerp(color.rgba(255, 230, 180, 255), color.white, random.uniform(0.3, 0.7))
             elif dist_factor < 0.55:
                 dusty_brown = color.rgba(210, 180, 140, 255)
                 col = lerp(dusty_brown, color.white, random.uniform(0.4, 0.9))
             else:
-                cold_white = color.rgba(230, 100, 90, 255)
+                cold_white = color.rgba(230, 245, 255, 255)
                 col = lerp(cold_white, color.white, random.uniform(0.6, 1))
             stars_colors.append(col)
 
@@ -118,7 +122,9 @@ class Galaxy:
             self.systems.append(StarSystem(self.pivot, pos))
 
     def update(self, cam_pos):
-        self.pivot.rotation_y += time.dt * 1.0
+        # Galaksi ve Disk beraber döner (Senkronize)
+        self.pivot.rotation_y += time.dt * 0.3
+        
         dist_to_cam = (self.pivot.world_position - cam_pos).length()
         if dist_to_cam < 15000: 
             for sys in self.systems:
@@ -130,12 +136,9 @@ class Galaxy:
 # --- EVREN ---
 galaxies = []
 def init_universe():
-    # Galaksilerin pozisyonları ve rastgele rotasyonları (3 boyutlu yönelimler)
     galaxy_positions = [Vec3(0,0,0), Vec3(20000,5000,10000), Vec3(-18000,-3000,20000), Vec3(10000,15000,-20000)]
     themes = [color.cyan, color.magenta, color.orange, color.white]
-    
     for i, pos in enumerate(galaxy_positions):
-        # Her galaksi evrende farklı bir açıyla duruyor (X, Y ve Z eksenlerinde rastgele eğim)
         random_rot = Vec3(random.uniform(0, 45), random.uniform(0, 360), random.uniform(0, 45))
         galaxies.append(Galaxy(pos, rotation=random_rot, color_theme=themes[i % len(themes)]))
 

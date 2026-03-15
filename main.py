@@ -4,8 +4,8 @@ from ursina import *
 from app_settings import *
 from objects.prefabs import *
 
-# Kamerayı hızlandırıyoruz (devasa yapıyı gezebilmek için)
-cam.move_speed = 300
+# Kamerayı tekrar hızlandırıyoruz (evrende serbestçe gezmek için)
+cam.move_speed = 1000
 
 def update():
     update_universe(cam)
