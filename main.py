@@ -4,7 +4,10 @@ from ursina import *
 from app_settings import *
 from objects.prefabs import *
 
+# Kamerayı hızlandırıyoruz (devasa yapıyı gezebilmek için)
+cam.move_speed = 300
+
 def update():
-    rotate_blackhole(cam)
-    move_all_skyspheres()
+    update_universe(cam)
+
 app.run()
