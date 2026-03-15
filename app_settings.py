@@ -12,8 +12,8 @@ cam = EditorCamera(vsync=False,
     development_mode=False
     )
 
-# Görüş mesafesini ve açısını yüksek tutuyoruz
-cam.clip_plane_far = 1000000 
+# Görüş mesafesini ve açısını maksimuma çıkarıyoruz
+cam.clip_plane_far = 2000000 # 2 Milyon birim - En uç galaksiler bile her an görünür
 cam.fov = 90
 cam.position = (0, 500, -2000)
 cam.look_at(Vec3(0,0,0))
